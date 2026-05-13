@@ -24,6 +24,7 @@ Weights can be attached to both nodes and edges to encode extra meaning (distanc
 networkx-graphs/
 ├── 01_basic_graph.py      # Create a graph, add/remove nodes & edges, node weights
 ├── 02_weighted_edges.py   # Weighted edges + social network ranking scenario
+├── 03_plot_a_graph.py     # Visualize graphs with Matplotlib (3 progressive examples)
 └── README.md
 ```
 
@@ -31,10 +32,10 @@ networkx-graphs/
 
 ## Quick Start
 
-### 1. Install NetworkX
+### 1. Install dependencies
 
 ```bash
-pip install networkx
+pip install networkx matplotlib
 ```
 
 ### 2. Run the scripts
@@ -42,6 +43,7 @@ pip install networkx
 ```bash
 python 01_basic_graph.py
 python 02_weighted_edges.py
+python 03_plot_a_graph.py
 ```
 
 ---
@@ -88,6 +90,24 @@ G.edges(data=True)               # edges + their attributes
 G.degree(weight='weight')        # weighted degree per node
 ```
 
+### Visualization
+
+```python
+import matplotlib.pyplot as plt
+
+nx.draw(G, with_labels=True)                        # minimal plot
+nx.draw(G, with_labels=True,
+        node_color="lightblue", node_size=3000,
+        font_weight="bold")                          # styled plot
+
+pos = nx.spring_layout(G, seed=42)                  # auto layout (reproducible)
+pos = {"A": (0, 1), "B": (1, 1), "C": (0.5, 0)}   # manual layout
+
+nx.draw(G, pos, with_labels=True)                   # draw with custom positions
+plt.savefig("graph.png", dpi=150)                   # save to file
+plt.show()                                          # display interactively
+```
+
 ---
 
 ## Script Walkthroughs
@@ -126,6 +146,20 @@ Total affinity score per person (weighted degree):
 🏆 Most liked member: Person 3
 ```
 
+### `03_plot_a_graph.py` — Visualizing Graphs with Matplotlib
+
+Three progressive plots using the same graph, each adding a layer of control:
+
+| Plot | Technique | Key parameter |
+|------|-----------|---------------|
+| 1 — Basic | Default auto-layout | `nx.draw(G, with_labels=True)` |
+| 2 — Styled | Auto-layout + custom size/color | `node_size=3000, node_color="lightblue"` |
+| 3 — Positioned | Manual coordinates | `pos = {"Mother": (0.25, 1), ...}` |
+
+**Key takeaway**: the graph data never changes across the three plots — only the visual layout does. Use `spring_layout(seed=42)` for reproducible auto-layouts, and a `pos` dict when you need precise control.
+
+Each plot is also saved as a `.png` file, ready to embed in a README or report.
+
 ---
 
 ## Concepts Covered
@@ -136,7 +170,7 @@ Total affinity score per person (weighted degree):
 - [x] Weighted degree as a centrality proxy
 - [ ] Directed graphs *(coming soon)*
 - [ ] Shortest path algorithms *(coming soon)*
-- [ ] Graph visualization with Matplotlib *(coming soon)*
+- [x] Graph visualization with Matplotlib
 
 ---
 
@@ -146,8 +180,3 @@ Total affinity score per person (weighted degree):
 - [NetworkX Tutorial](https://networkx.org/documentation/stable/tutorial.html)
 - [Graph Theory — Wikipedia](https://en.wikipedia.org/wiki/Graph_theory)
 
----
-
-## License
-
-MIT — free to use, share, and adapt.
