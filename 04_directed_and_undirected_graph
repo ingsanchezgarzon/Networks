@@ -1,0 +1,170 @@
+"""
+04_directed_and_undirected_graphs.py
+-------------------------------------
+Covers the two fundamental graph types in NetworkX:
+
+  - Undirected graphs (nx.Graph)    → edges have NO direction; A↔B
+  - Directed graphs   (nx.DiGraph)  → edges HAVE direction; A→B ≠ B→A
+
+This script walks through four examples:
+  1. Undirected mesh         – all nodes connected to each other
+  2. Directed tree           – org-chart of a small company (TechNOW)
+  3. Directed graph (raw)    – larger org-chart, default auto-layout
+  4. Directed graph (KK)     – same graph with Kamada-Kawai layout
+
+Requirements:
+  pip install networkx matplotlib
+"""
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PLOT 1 — Undirected mesh graph
+# ───────────────────────────────────────────────────────────────────────────────
+# nx.Graph() creates an undirected graph: edges can be traversed both ways.
+# The nested loop connects every unique pair of nodes exactly once,
+# producing a "fully connected" or mesh topology.
+#
+# Technique: enumerate(nodes) gives (index, node) pairs.
+#            nodes[i+1:] slices from the NEXT node onward → no duplicates,
+#            no self-loops.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+G_undirected = nx.Graph()
+
+nodes = ["A", "B", "C", "D", "E", "F"]
+G_undirected.add_nodes_from(nodes)
+
+# Connect every unique pair → mesh topology
+for i, node1 in enumerate(nodes):
+    for node2 in nodes[i + 1:]:          # only nodes AFTER node1 to avoid duplicates
+        G_undirected.add_edge(node1, node2)
+
+plt.figure(figsize=(6, 5))
+plt.title("Plot 1 — Undirected mesh graph")
+nx.draw(G_undirected, with_labels=True, node_color="lightblue", font_weight="bold")
+plt.tight_layout()
+plt.savefig("plot1_undirected_mesh.png", dpi=150)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PLOT 2 — Directed tree (TechNOW org chart)
+# ───────────────────────────────────────────────────────────────────────────────
+# nx.DiGraph() creates a directed graph: edges flow in ONE direction only.
+# Arrow direction represents authority (A→B means A manages B).
+#
+# Manual positions place:
+#   CEO (A)             → top center
+#   Managers (B, C)     → middle row
+#   Individual contributors (D–G) → bottom row
+# ═══════════════════════════════════════════════════════════════════════════════
+
+G_tree = nx.DiGraph()
+
+G_tree.add_nodes_from(["A", "B", "C", "D", "E", "F", "G"])
+G_tree.add_edges_from([
+    ("A", "B"),   # CEO → Head of Development
+    ("A", "C"),   # CEO → Head of Operations
+    ("B", "D"),   # Head of Dev → Engineer 1
+    ("B", "E"),   # Head of Dev → Engineer 2
+    ("C", "F"),   # Head of Ops → Marketing
+    ("C", "G"),   # Head of Ops → Customer Support
+])
+
+pos_tree = {
+    "A": (0.50, 1.0),
+    "B": (0.25, 0.5),
+    "C": (0.75, 0.5),
+    "D": (0.10, 0.0),
+    "E": (0.30, 0.0),
+    "F": (0.70, 0.0),
+    "G": (0.90, 0.0),
+}
+
+plt.figure(figsize=(7, 5))
+plt.title("Plot 2 — Directed tree: TechNOW org chart")
+nx.draw(
+    G_tree, pos_tree,
+    with_labels=True,
+    node_color="lightblue",
+    font_weight="bold",
+    arrowsize=20,
+)
+plt.tight_layout()
+plt.savefig("plot2_directed_tree.png", dpi=150)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PLOT 3 — Larger directed graph, default auto-layout
+# ───────────────────────────────────────────────────────────────────────────────
+# As graphs grow, manually setting positions becomes impractical.
+# The default spring layout spreads nodes out but doesn't respect hierarchy,
+# making large org charts hard to read.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+G_large = nx.DiGraph()
+G_large.add_edges_from([
+    ("A", "B"), ("A", "C"), ("A", "D"),
+    ("B", "E"), ("B", "F"),
+    ("C", "G"), ("C", "H"),
+    ("D", "I"), ("D", "J"),
+    ("E", "K"), ("E", "L"),
+    ("F", "M"), ("F", "N"),
+    ("G", "O"), ("G", "P"),
+    ("H", "Q"), ("H", "R"),
+    ("I", "S"), ("I", "T"),
+])
+
+plt.figure(figsize=(10, 8))
+plt.title("Plot 3 — Default layout (no algorithm)")
+nx.draw(
+    G_large,
+    with_labels=True,
+    node_color="lightblue",
+    font_weight="bold",
+    arrowsize=10,
+    node_size=300,
+)
+plt.tight_layout()
+plt.savefig("plot3_default_layout.png", dpi=150)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PLOT 4 — Same graph with Kamada-Kawai layout
+# ───────────────────────────────────────────────────────────────────────────────
+# Kamada-Kawai is a force-directed algorithm that simulates physical forces:
+#   - Nodes repel each other (like magnets)
+#   - Edges act as springs pulling connected nodes together
+#
+# The result naturally reveals clusters, hierarchies, and structural patterns
+# without any manual positioning — ideal for complex graphs.
+#
+# Other layout options worth knowing:
+#   nx.spring_layout(G)           – Fruchterman-Reingold (fast, general purpose)
+#   nx.kamada_kawai_layout(G)     – higher quality, slower for very large graphs
+#   nx.shell_layout(G)            – nodes arranged in concentric circles
+#   nx.spectral_layout(G)         – uses graph's eigenvectors
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pos_kk = nx.kamada_kawai_layout(G_large)
+
+plt.figure(figsize=(10, 8))
+plt.title("Plot 4 — Kamada-Kawai layout")
+nx.draw(
+    G_large, pos_kk,
+    with_labels=True,
+    node_color="lightblue",
+    font_weight="bold",
+    arrowsize=10,
+    node_size=300,
+)
+plt.tight_layout()
+plt.savefig("plot4_kamada_kawai.png", dpi=150)
+plt.show()
+
+print("✅ All four plots saved as PNG files.")
