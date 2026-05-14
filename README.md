@@ -26,6 +26,7 @@ networkx-graphs/
 ├── 02_weighted_edges.py                 # Weighted edges + social network ranking scenario
 ├── 03_plot_a_graph.py                   # Visualize graphs with Matplotlib (3 progressive examples)
 ├── 04_directed_and_undirected_graphs.py # Undirected mesh, directed trees, Kamada-Kawai layout
+├── 05_degree_centrality.py              # Degree Centrality: compute, rank, and color-code nodes
 └── README.md
 ```
 
@@ -46,6 +47,7 @@ python 01_basic_graph.py
 python 02_weighted_edges.py
 python 03_plot_a_graph.py
 python 04_directed_and_undirected_graphs.py
+python 05_degree_centrality.py
 ```
 
 ---
@@ -110,6 +112,18 @@ pos = {"A": (0, 1), "B": (1, 1), "C": (0.5, 0)}   # fully manual
 nx.draw(G, pos, with_labels=True)                   # draw with chosen layout
 plt.savefig("graph.png", dpi=150)                   # save to file
 plt.show()                                          # display interactively
+```
+
+### Graph Analysis
+
+```python
+# Degree Centrality — importance of a node based on its number of connections
+# Returns dict: {node: score} where score is between 0 (isolated) and 1 (fully connected)
+dc = nx.degree_centrality(G)
+
+# Color nodes by centrality score for visualization
+color_map = [dc[node] for node in G.nodes()]
+nx.draw(G, pos, node_color=color_map, cmap=plt.cm.coolwarm, with_labels=True)
 ```
 
 ---
@@ -179,18 +193,32 @@ Four plots that contrast graph types and layout strategies:
 
 **Key takeaway**: `nx.Graph` edges are bidirectional (A↔B); `nx.DiGraph` edges are one-way (A→B). For large directed graphs, force-directed algorithms like Kamada-Kawai reveal hierarchy and clusters that a default layout obscures.
 
+### `05_degree_centrality.py` — Degree Centrality
+
+Introduces one of the most important metrics in network analysis: how connected (and therefore influential) each node is.
+
+**Formula**: `centrality(v) = degree(v) / (n − 1)` — normalized so scores are always between 0 and 1.
+
+| Example | Structure | Result |
+|---------|-----------|--------|
+| 1 — Cycle | Directed cycle (1→2→…→5→1) | All nodes score 0.50 — uniform prominence |
+| 2 — Asymmetric | Varied in/out edges | Different scores; printed with ASCII bar chart + color plot |
+
+**Key takeaway**: nodes colored in red have high centrality (many connections); blue nodes are more peripheral. A colorbar is added to the plot so the scale is always readable.
+
 ---
 
 ## Concepts Covered
 
-- [x] Undirected graphs
+- [x] Undirected graphs (mesh topology, bidirectional edges)
+- [x] Directed graphs (DiGraph, arrowsize, org-chart scenario)
 - [x] Node attributes (weights)
 - [x] Edge attributes (weights)
-- [x] Weighted degree as a centrality proxy
-- [x] Directed graphs (DiGraph, arrowsize, org-chart scenario)
-- [x] Undirected graphs (mesh topology, bidirectional edges)
-- [x] Force-directed layout algorithms (Kamada-Kawai, spring)
 - [x] Graph visualization with Matplotlib
+- [x] Layout algorithms (spring, Kamada-Kawai, manual positions)
+- [x] Weighted degree as a centrality proxy
+- [x] Degree Centrality (formula, color-coded visualization, ranking)
+
 
 ---
 
@@ -205,4 +233,3 @@ Four plots that contrast graph types and layout strategies:
 ## License
 
 MIT — free to use, share, and adapt.
-
