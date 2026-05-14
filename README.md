@@ -22,9 +22,10 @@ Weights can be attached to both nodes and edges to encode extra meaning (distanc
 
 ```
 networkx-graphs/
-├── 01_basic_graph.py      # Create a graph, add/remove nodes & edges, node weights
-├── 02_weighted_edges.py   # Weighted edges + social network ranking scenario
-├── 03_plot_a_graph.py     # Visualize graphs with Matplotlib (3 progressive examples)
+├── 01_basic_graph.py                    # Create a graph, add/remove nodes & edges, node weights
+├── 02_weighted_edges.py                 # Weighted edges + social network ranking scenario
+├── 03_plot_a_graph.py                   # Visualize graphs with Matplotlib (3 progressive examples)
+├── 04_directed_and_undirected_graphs.py # Undirected mesh, directed trees, Kamada-Kawai layout
 └── README.md
 ```
 
@@ -44,6 +45,7 @@ pip install networkx matplotlib
 python 01_basic_graph.py
 python 02_weighted_edges.py
 python 03_plot_a_graph.py
+python 04_directed_and_undirected_graphs.py
 ```
 
 ---
@@ -55,8 +57,8 @@ python 03_plot_a_graph.py
 ```python
 import networkx as nx
 
-G = nx.Graph()          # Undirected graph
-G = nx.DiGraph()        # Directed graph
+G = nx.Graph()          # Undirected — edges have no direction (A↔B)
+G = nx.DiGraph()        # Directed   — edges flow one way (A→B)
 ```
 
 ### Nodes
@@ -98,12 +100,14 @@ import matplotlib.pyplot as plt
 nx.draw(G, with_labels=True)                        # minimal plot
 nx.draw(G, with_labels=True,
         node_color="lightblue", node_size=3000,
-        font_weight="bold")                          # styled plot
+        font_weight="bold", arrowsize=20)            # styled (arrowsize for DiGraph)
 
-pos = nx.spring_layout(G, seed=42)                  # auto layout (reproducible)
-pos = {"A": (0, 1), "B": (1, 1), "C": (0.5, 0)}   # manual layout
+pos = nx.spring_layout(G, seed=42)                  # Fruchterman-Reingold (fast, general)
+pos = nx.kamada_kawai_layout(G)                     # Kamada-Kawai (higher quality, reveals clusters)
+pos = nx.shell_layout(G)                            # concentric circles
+pos = {"A": (0, 1), "B": (1, 1), "C": (0.5, 0)}   # fully manual
 
-nx.draw(G, pos, with_labels=True)                   # draw with custom positions
+nx.draw(G, pos, with_labels=True)                   # draw with chosen layout
 plt.savefig("graph.png", dpi=150)                   # save to file
 plt.show()                                          # display interactively
 ```
@@ -162,14 +166,30 @@ Each plot is also saved as a `.png` file, ready to embed in a README or report.
 
 ---
 
+### `04_directed_and_undirected_graphs.py` — Directed vs Undirected + Layout Algorithms
+
+Four plots that contrast graph types and layout strategies:
+
+| Plot | Graph type | Layout | Scenario |
+|------|-----------|--------|----------|
+| 1 — Undirected mesh | `nx.Graph` | Auto | 6 nodes, all connected |
+| 2 — Directed tree | `nx.DiGraph` | Manual | TechNOW org chart (7 nodes) |
+| 3 — Large digraph | `nx.DiGraph` | Default spring | TechNOW expanded (20 nodes) |
+| 4 — Kamada-Kawai | `nx.DiGraph` | `kamada_kawai_layout` | Same graph, structured layout |
+
+**Key takeaway**: `nx.Graph` edges are bidirectional (A↔B); `nx.DiGraph` edges are one-way (A→B). For large directed graphs, force-directed algorithms like Kamada-Kawai reveal hierarchy and clusters that a default layout obscures.
+
+---
+
 ## Concepts Covered
 
 - [x] Undirected graphs
 - [x] Node attributes (weights)
 - [x] Edge attributes (weights)
 - [x] Weighted degree as a centrality proxy
-- [ ] Directed graphs *(coming soon)*
-- [ ] Shortest path algorithms *(coming soon)*
+- [x] Directed graphs (DiGraph, arrowsize, org-chart scenario)
+- [x] Undirected graphs (mesh topology, bidirectional edges)
+- [x] Force-directed layout algorithms (Kamada-Kawai, spring)
 - [x] Graph visualization with Matplotlib
 
 ---
@@ -179,4 +199,10 @@ Each plot is also saved as a `.png` file, ready to embed in a README or report.
 - [NetworkX Documentation](https://networkx.org/documentation/stable/)
 - [NetworkX Tutorial](https://networkx.org/documentation/stable/tutorial.html)
 - [Graph Theory — Wikipedia](https://en.wikipedia.org/wiki/Graph_theory)
+
+---
+
+## License
+
+MIT — free to use, share, and adapt.
 
